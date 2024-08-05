@@ -10,11 +10,13 @@ function generateTaskId() {
 // Function to create a task card
 function createTaskCard(task) {
     const taskCard = $(`
-        <div class="task-card" id="${task.id}" draggable="true">
-            <h3>${task.title}</h3>
-            <p>${task.desc}</p>
-            <p>Deadline: ${task.deadline}</p>
-            <button class="delete-button" data-id="${task.id}">Delete</button>
+        <div class="task-card card mb-3" id="${task.id}" draggable="true">
+            <div class="card-body">
+                <h5 class="card-title">${task.title}</h5>
+                <p class="card-text">${task.desc}</p>
+                <p class="card-text"><small class="text-muted">Deadline: ${task.deadline}</small></p>
+                <button class="btn btn-danger delete-button" data-id="${task.id}">Delete</button>
+            </div>
         </div>
     `);
 
@@ -37,7 +39,7 @@ function createTaskCard(task) {
 function renderTaskList() {
     $('.task-list').empty();
     taskList.forEach(task => {
-        $(`#${task.status}-list`).append(createTaskCard(task));
+        $(`#${task.status}-cards`).append(createTaskCard(task));
     });
     localStorage.setItem("tasks", JSON.stringify(taskList));
     localStorage.setItem("nextId", JSON.stringify(nextId));
@@ -51,11 +53,11 @@ function handleAddTask(event) {
         title: $('#task-title').val(),
         desc: $('#task-desc').val(),
         deadline: $('#task-deadline').val(),
-        status: 'not-started'
+        status: 'to-do'
     };
     taskList.push(task);
     renderTaskList();
-    $('#task-modal').hide();
+    $('#formModal').modal('hide');
     $('#task-form')[0].reset();
 }
 
@@ -69,7 +71,7 @@ function handleDeleteTask(event) {
 // Function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
     const taskId = ui.draggable.attr('id');
-    const newStatus = $(this).attr('id').replace('-list', '');
+    const newStatus = $(this).attr('id').replace('-cards', '');
     const task = taskList.find(task => task.id === taskId);
     task.status = newStatus;
     renderTaskList();
@@ -80,17 +82,11 @@ $(document).ready(function () {
     renderTaskList();
 
     $('#add-task-button').on('click', function() {
-        $('#task-modal').show();
+        $('#formModal').modal('show');
     });
 
-    $('.close-button').on('click', function() {
-        $('#task-modal').hide();
-    });
-
-    $(window).on('click', function(event) {
-        if ($(event.target).is('#task-modal')) {
-            $('#task-modal').hide();
-        }
+    $('.btn-close').on('click', function() {
+        $('#formModal').modal('hide');
     });
 
     $('#task-form').on('submit', handleAddTask);
